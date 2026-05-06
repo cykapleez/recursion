@@ -9,7 +9,7 @@ const MAX_THROW_DIST    := 8.0
 const SMASH_RANGE       := 3.5
 const LUNGE_SPEED       := 22.0
 const LUNGE_TIME        := 0.18
-const POWER_THROW_TIME  := 1.5    # seconds to charge a heavy throw
+const POWER_THROW_TIME  := 0.5    # seconds to charge a heavy throw
 const MAX_LIVES         := 3
 
 @export var pickup_range := 2.5
