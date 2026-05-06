@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/world.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/cart.gd" id="8"]
 [ext_resource type="Script" path="res://scripts/grid.gd" id="9"]
 [ext_resource type="Script" path="res://scripts/build_preview.gd" id="10"]
+[ext_resource type="Script" path="res://scripts/wave_manager.gd" id="11"]
 
 [sub_resource type="WorldBoundaryShape3D" id="1"]
 
@@ -44,6 +45,9 @@ position = Vector3(0, 0, 0)
 
 [node name="Enemy" parent="." instance=ExtResource("3")]
 position = Vector3(3.5, 0, -2.0)
+
+[node name="WaveManager" type="Node" parent="."]
+script = ExtResource("11")
 
 [node name="Grid" type="Node3D" parent="."]
 script = ExtResource("9")

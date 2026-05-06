@@ -42,7 +42,10 @@ const ARMOR_COLOR := Color(0.17, 0.17, 0.20)   # dark iron plate
 const SPINE_COLOR := Color(0.22, 0.20, 0.26)   # slightly oxidised spine ridges
 const EYE_COLOR   := Color(0.45, 0.92, 1.0)    # cold undead glow
 
+var attack_cooldown_override: float = 0.0   # set by WaveManager per wave; 0 = use const
+
 var hp:         int
+var _dying:     bool = false
 var _body_mat:  StandardMaterial3D
 var _hp_label:  Label3D
 var _dmg_label: Label3D
@@ -59,7 +62,8 @@ func _process(delta: float) -> void:
 	_phase_timer += delta
 	match _phase:
 		AttackPhase.IDLE:
-			if _phase_timer >= 0.0 and _phase_timer >= ATTACK_COOLDOWN:
+			var effective_cd := attack_cooldown_override if attack_cooldown_override > 0.0 else ATTACK_COOLDOWN
+			if _phase_timer >= 0.0 and _phase_timer >= effective_cd:
 				var player := _nearest_player()
 				if player != null and global_position.distance_to(player.global_position) <= ATTACK_RANGE:
 					if randi() % 2 == 0:
@@ -445,6 +449,8 @@ func _nearest_player() -> Node3D:
 # ── Combat ────────────────────────────────────────────────────────────────────
 
 func take_damage(amount: int) -> void:
+	if _dying:
+		return
 	hp = max(0, hp - amount)
 	_refresh_hp()
 	_show_damage_number(amount)
@@ -479,6 +485,8 @@ func _flash_hit() -> void:
 	tween.tween_property(_body_mat, "albedo_color", BODY_COLOR, 0.25)
 
 func _die() -> void:
+	_dying = true
+	remove_from_group("enemies")   # wave manager reads group size; remove immediately
 	if _aoe_indicator != null:
 		_aoe_indicator.queue_free()
 		_aoe_indicator = null

@@ -6,9 +6,10 @@ extends Node
 const PLAYER_STRENGTH  := 15
 const THROW_MULTIPLIER := 1.4   # Warrior class
 const SMASH_MULTIPLIER := 1.8   # melee bonus over throw
-const GRID_SIZE        := 1.0   # matches stone wall footprint (weight 60 → sz 1.0)
+const GRID_SIZE              := 1.0
 const SPAWN_POSITIONS: Array[Vector3] = [Vector3(0.0, 0.0, 0.0)]
-const SPAWN_ZONE_HALF: float = 1.0   # half-size of the no-build square, matches the marker
+const SPAWN_ZONE_HALF: float = 1.0
+const POWER_THROW_THRESHOLD: float = 30.0   # kg — above this weight, throw requires a charge
 
 const OBJECT_DEFS := {
 	# ── Crafted (built products) — full weight-based damage ───────────────────
@@ -33,6 +34,8 @@ var cart_current_weight: int   = 0
 signal cart_changed(items: Array)
 signal throw_resolved(damage: int, target_pos: Vector3, object_id: String)
 signal mode_changed(mode_name: String)
+signal lives_changed(remaining: int)
+signal game_over
 
 func _ready() -> void:
 	_setup_input_map()

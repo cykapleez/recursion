@@ -1,14 +1,16 @@
 extends CharacterBody3D
 class_name Player
 
-enum Mode { FREE, BUILD, THROW_AIM }
+enum Mode { FREE, BUILD, THROW_AIM, POWER_THROW_CHARGING }
 
-const BASE_SPEED      := 6.0
-const GRAVITY         := 9.8
-const MAX_THROW_DIST  := 8.0
-const SMASH_RANGE     := 3.5   # max distance to enemy for a smash
-const LUNGE_SPEED     := 22.0  # dash speed during smash
-const LUNGE_TIME      := 0.18  # seconds the lunge lasts
+const BASE_SPEED        := 6.0
+const GRAVITY           := 9.8
+const MAX_THROW_DIST    := 8.0
+const SMASH_RANGE       := 3.5
+const LUNGE_SPEED       := 22.0
+const LUNGE_TIME        := 0.18
+const POWER_THROW_TIME  := 1.5    # seconds to charge a heavy throw
+const MAX_LIVES         := 3
 
 @export var pickup_range := 2.5
 
@@ -25,8 +27,12 @@ var _smashing:     bool    = false
 var _lunge_dir:    Vector3 = Vector3.ZERO
 var _lunge_timer:  float   = 0.0
 var _lunge_target: Node3D
-var _spawn_pos:    Vector3 = Vector3.ZERO
-var _dead:         bool    = false
+var _spawn_pos:           Vector3 = Vector3.ZERO
+var _dead:                bool    = false
+var lives:                int     = MAX_LIVES
+var _power_throw_timer:   float   = 0.0
+var _power_throw_target:  Vector3 = Vector3.ZERO
+var _charge_label:        Label3D
 
 func _ready() -> void:
 	add_to_group("player")
@@ -93,6 +99,15 @@ func _build_visuals() -> void:
 	_hp_label.no_depth_test = true
 	add_child(_hp_label)
 
+	_charge_label              = Label3D.new()
+	_charge_label.visible       = false
+	_charge_label.position      = Vector3(0, 3.2, 0)
+	_charge_label.pixel_size    = 0.009
+	_charge_label.modulate      = Color(1.0, 0.85, 0.1)
+	_charge_label.billboard     = BaseMaterial3D.BILLBOARD_ENABLED
+	_charge_label.no_depth_test = true
+	add_child(_charge_label)
+
 func _mat(color: Color, roughness: float = 0.8, metallic: float = 0.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = color
@@ -117,14 +132,26 @@ func take_damage(amount: int) -> void:
 		_die()
 
 func _die() -> void:
-	_dead    = true
-	visible  = false
+	_dead   = true
+	visible = false
+	lives  -= 1
+	GameManager.lives_changed.emit(lives)
+	if lives <= 0:
+		GameManager.game_over.emit()
+		return
 	await get_tree().create_timer(1.2).timeout
 	global_position = _spawn_pos
 	hp = max_hp
 	_refresh_hp_bar()
 	visible = true
 	_dead   = false
+
+func _current_throw_weight() -> float:
+	if throw_slot_index >= GameManager.cart_items.size():
+		return 0.0
+	var item: Dictionary = GameManager.cart_items[throw_slot_index]
+	var def:  Dictionary = GameManager.OBJECT_DEFS.get(item.get("object_id", ""), {})
+	return float(def.get("weight", 0))
 
 func _find_throw_arc() -> void:
 	_throw_arc = get_parent().get_node_or_null("ThrowArc3D")
@@ -156,16 +183,29 @@ func _physics_process(delta: float) -> void:
 		velocity.z = raw.y * spd
 		move_and_slide()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if _dead:
 		return
 	if mode == Mode.THROW_AIM and _throw_arc:
 		_throw_arc.call("show_arc",
 			global_position + Vector3(0, 1.5, 0),
 			_clamped_throw_pos())
+	if mode == Mode.POWER_THROW_CHARGING:
+		_power_throw_timer += delta
+		var pct  := clampf(_power_throw_timer / POWER_THROW_TIME, 0.0, 1.0)
+		var bars := int(pct * 8)
+		var bar  := ""
+		for i in 8:
+			bar += "█" if i < bars else "░"
+		_charge_label.text    = "⚡ " + bar
+		_charge_label.visible = true
+		if _power_throw_timer >= POWER_THROW_TIME:
+			_charge_label.visible = false
+			GameManager.throw_object(throw_slot_index, _power_throw_target)
+			_set_mode(Mode.FREE)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _dead:
+	if _dead or mode == Mode.POWER_THROW_CHARGING:
 		return
 	if event.is_action_pressed("toggle_build"):
 		_set_mode(Mode.FREE if mode == Mode.BUILD else Mode.BUILD)
@@ -196,8 +236,13 @@ func _unhandled_input(event: InputEvent) -> void:
 							pos = GameManager.snap_to_grid(pos)
 						GameManager.place_object(build_object_id, pos)
 				Mode.THROW_AIM:
-					GameManager.throw_object(throw_slot_index, _clamped_throw_pos())
-					_set_mode(Mode.FREE)
+					if _current_throw_weight() > GameManager.POWER_THROW_THRESHOLD:
+						_power_throw_target = _clamped_throw_pos()
+						_power_throw_timer  = 0.0
+						_set_mode(Mode.POWER_THROW_CHARGING)
+					else:
+						GameManager.throw_object(throw_slot_index, _clamped_throw_pos())
+						_set_mode(Mode.FREE)
 
 func _try_pickup() -> void:
 	for wo in get_tree().get_nodes_in_group("world_objects"):
