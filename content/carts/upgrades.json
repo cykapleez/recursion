@@ -1,0 +1,67 @@
+[
+  {
+    "id": "perk-heavy-frame",
+    "name": "Heavy Frame",
+    "description": "Reinforced cart body. Increases weight limit by 50.",
+    "effect": { "type": "weight_capacity", "value": 50 },
+    "craft_cost": [
+      { "item_id": "item-iron-ingot", "quantity": 4 }
+    ],
+    "compatible_carts": ["cart-standard", "cart-reinforced", "cart-siege"]
+  },
+  {
+    "id": "perk-double-axle",
+    "name": "Double Axle",
+    "description": "A second axle under the cart bed. Increases weight limit by 100.",
+    "effect": { "type": "weight_capacity", "value": 100 },
+    "craft_cost": [
+      { "item_id": "item-iron-ingot", "quantity": 10 },
+      { "item_id": "item-wood-plank", "quantity": 6 }
+    ],
+    "compatible_carts": ["cart-reinforced", "cart-siege"]
+  },
+  {
+    "id": "perk-sprinter-wheels",
+    "name": "Sprinter Wheels",
+    "description": "Lightweight wheels that give a 15% speed boost when the cart is under half capacity.",
+    "effect": { "type": "speed_bonus", "condition": "under_50_pct", "value": 0.15 },
+    "craft_cost": [
+      { "item_id": "item-wood-plank", "quantity": 6 },
+      { "item_id": "item-iron-ingot", "quantity": 2 }
+    ],
+    "compatible_carts": ["cart-standard", "cart-reinforced", "cart-siege"]
+  },
+  {
+    "id": "perk-overload-buffer",
+    "name": "Overload Buffer",
+    "description": "Shock-absorbing frame mounts. Movement penalty does not activate until 30% over the weight limit.",
+    "effect": { "type": "overload_threshold", "value": 0.30 },
+    "craft_cost": [
+      { "item_id": "item-iron-ingot", "quantity": 6 },
+      { "item_id": "item-spring-coil", "quantity": 2 }
+    ],
+    "compatible_carts": ["cart-reinforced", "cart-siege"]
+  },
+  {
+    "id": "perk-throwing-rack",
+    "name": "Throwing Rack",
+    "description": "A quick-release rack for crafted items. Increases throw damage for crafted items retrieved from this cart by 12%.",
+    "effect": { "type": "throw_damage_bonus", "category": "crafted", "value": 0.12 },
+    "craft_cost": [
+      { "item_id": "item-iron-ingot", "quantity": 5 },
+      { "item_id": "item-wood-plank", "quantity": 3 }
+    ],
+    "compatible_carts": ["cart-standard", "cart-reinforced", "cart-siege"]
+  },
+  {
+    "id": "perk-expanded-frame",
+    "name": "Expanded Frame",
+    "description": "A wider cart frame with room for one more perk attachment.",
+    "effect": { "type": "perk_slot", "value": 1 },
+    "craft_cost": [
+      { "item_id": "item-iron-ingot", "quantity": 15 },
+      { "item_id": "item-wood-plank", "quantity": 8 }
+    ],
+    "compatible_carts": ["cart-reinforced", "cart-siege"]
+  }
+]

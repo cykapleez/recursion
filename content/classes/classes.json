@@ -1,0 +1,32 @@
+[
+  {
+    "id": "class-warrior",
+    "name": "Warrior",
+    "description": "High Strength — the natural Destroyer. Can solo-lift heavy objects and deal massive throw damage.",
+    "base_stats": {
+      "strength": 15,
+      "dexterity": 8,
+      "intelligence": 5,
+      "vitality": 12
+    },
+    "strength_scaling": "high",
+    "lift_capacity_formula": "strength * 6",
+    "throw_damage_multiplier": 1.4,
+    "skills": ["skill-heavy-throw", "skill-power-lift", "skill-slam"]
+  },
+  {
+    "id": "class-engineer",
+    "name": "Engineer",
+    "description": "High DEX/INT — the natural Builder. Fast crafting, precise placement, low throw damage.",
+    "base_stats": {
+      "strength": 6,
+      "dexterity": 14,
+      "intelligence": 13,
+      "vitality": 7
+    },
+    "strength_scaling": "low",
+    "lift_capacity_formula": "strength * 4",
+    "throw_damage_multiplier": 0.8,
+    "skills": ["skill-fast-craft", "skill-blueprint", "skill-reinforce"]
+  }
+]

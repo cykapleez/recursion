@@ -1,0 +1,24 @@
+[
+  {
+    "id": "enemy-test-monster",
+    "name": "Test Monster",
+    "description": "A stocky crimson-skinned creature with curved dark horns and glowing yellow eyes. Built like a wall, moves like one too.",
+    "threat_level": "Moderate",
+    "behavior": "Stationary. Waits for players to bring the fight to it. Does not pursue or retaliate in the current build.",
+    "weaknesses": ["thrown objects", "smash attacks"],
+    "resistances": [],
+    "drops": [],
+    "tips": [
+      "A Smash attack deals significantly more damage than a throw — get close if you can.",
+      "The Iron Spike Trap is the most damage-efficient throw for its weight.",
+      "Heavier objects hit harder. A Wooden House from a coordinated party is a finishing blow."
+    ],
+    "wiki_visible": true,
+    "secret": {
+      "hp": 300,
+      "collision_radius_units": 0.55,
+      "smash_detection_range_units": 3.5,
+      "death_animation": "squash_and_free"
+    }
+  }
+]

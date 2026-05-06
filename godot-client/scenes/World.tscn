@@ -1,0 +1,103 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/world.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/Enemy.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/cart_ui.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/object_palette.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/network.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/throw_arc.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/cart.gd" id="8"]
+[ext_resource type="Script" path="res://scripts/grid.gd" id="9"]
+[ext_resource type="Script" path="res://scripts/build_preview.gd" id="10"]
+
+[sub_resource type="WorldBoundaryShape3D" id="1"]
+
+[sub_resource type="PlaneMesh" id="2"]
+size = Vector2(80, 80)
+
+[sub_resource type="StandardMaterial3D" id="3"]
+albedo_color = Color(0.22, 0.45, 0.18, 1)
+roughness = 0.95
+metallic = 0.0
+metallic_specular = 0.1
+
+[node name="World" type="Node3D"]
+script = ExtResource("1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-50, -30, 0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+
+[node name="GroundCollision" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("1")
+
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("2")
+material_override = SubResource("3")
+
+[node name="Player" parent="." instance=ExtResource("2")]
+position = Vector3(0, 0, 0)
+
+[node name="Enemy" parent="." instance=ExtResource("3")]
+position = Vector3(3.5, 0, -2.0)
+
+[node name="Grid" type="Node3D" parent="."]
+script = ExtResource("9")
+
+[node name="Cart" type="Node3D" parent="."]
+script = ExtResource("8")
+
+[node name="ThrowArc3D" type="Node3D" parent="."]
+script = ExtResource("7")
+
+[node name="BuildPreview" type="Node3D" parent="."]
+script = ExtResource("10")
+
+[node name="Network" type="Node" parent="."]
+script = ExtResource("6")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="ModeLabel" type="Label" parent="CanvasLayer"]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 900.0
+offset_bottom = 32.0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.9, 0.9, 0.7, 1)
+
+[node name="CartUI" type="PanelContainer" parent="CanvasLayer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -230.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+script = ExtResource("4")
+
+[node name="ItemList" type="VBoxContainer" parent="CanvasLayer/CartUI"]
+layout_mode = 2
+
+[node name="ObjectPalette" type="HBoxContainer" parent="CanvasLayer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = -48.0
+offset_right = 0.0
+offset_bottom = 0.0
+script = ExtResource("5")

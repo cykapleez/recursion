@@ -1,0 +1,39 @@
+[
+  {
+    "id": "cart-standard",
+    "name": "Standard Cart",
+    "description": "A basic wooden cart. Gets the job done but fills up fast.",
+    "tier": 1,
+    "max_weight": 150,
+    "perk_slots": 2,
+    "overload_speed_penalty": 0.35,
+    "craft_cost": []
+  },
+  {
+    "id": "cart-reinforced",
+    "name": "Reinforced Cart",
+    "description": "Iron-braced frame with wider wheels. Holds more and handles overload better.",
+    "tier": 2,
+    "max_weight": 250,
+    "perk_slots": 3,
+    "overload_speed_penalty": 0.30,
+    "craft_cost": [
+      { "item_id": "item-iron-ingot", "quantity": 8 },
+      { "item_id": "item-wood-plank", "quantity": 4 }
+    ]
+  },
+  {
+    "id": "cart-siege",
+    "name": "Siege Cart",
+    "description": "A massive hauling platform built for carrying the heaviest crafted weapons. Slow when overloaded — but the perks make it a monster.",
+    "tier": 3,
+    "max_weight": 400,
+    "perk_slots": 4,
+    "overload_speed_penalty": 0.25,
+    "craft_cost": [
+      { "item_id": "item-iron-ingot", "quantity": 20 },
+      { "item_id": "item-stone-slab", "quantity": 10 },
+      { "item_id": "item-wood-plank", "quantity": 8 }
+    ]
+  }
+]

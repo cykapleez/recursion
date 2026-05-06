@@ -1,0 +1,21 @@
+# Godot generated files
+godot-client/.godot/
+godot-client/*.uid
+
+# Godot import metadata (regenerated on open)
+godot-client/.import/
+
+# Node / backend
+backend/node_modules/
+backend/.env
+backend/.env.local
+bot/node_modules/
+bot/.env
+bot/.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

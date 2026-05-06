@@ -1,0 +1,127 @@
+[
+  {
+    "id": "mechanic-free-mode",
+    "name": "Free Mode",
+    "category": "Modes",
+    "hotkey": null,
+    "description": "The default state. Move freely, interact with the world, pick up objects, and enter other modes.",
+    "details": "You return to Free Mode by pressing the active mode key again or right-clicking during Throw Aim. Most actions are only available while in Free Mode.",
+    "tips": []
+  },
+  {
+    "id": "mechanic-build-mode",
+    "name": "Build Mode",
+    "category": "Modes",
+    "hotkey": "B",
+    "description": "Enters Build Mode. Select an object from the palette at the bottom of the screen, then click anywhere in the world to place it.",
+    "details": "A transparent ghost of the selected object follows your cursor. Placement snaps to the build grid by default. Hold ALT while clicking to place freely without snapping. Press B again to cancel.",
+    "tips": [
+      "Stone Wall Sections snap perfectly edge-to-edge on the default grid.",
+      "Hold ALT for precise off-grid placement of decorative objects.",
+      "Placed objects persist in the world and can be picked up by anyone with enough Strength."
+    ]
+  },
+  {
+    "id": "mechanic-throw-aim-mode",
+    "name": "Throw Aim Mode",
+    "category": "Modes",
+    "hotkey": "T",
+    "description": "Enters Throw Aim Mode. An arc previews the trajectory of the object currently selected in your cart.",
+    "details": "Left-click on a target to throw. Right-click or press T again to cancel. The throw arc is clamped to a maximum range — you cannot throw infinitely far. Heavier objects deal more damage but do not travel further.",
+    "tips": [
+      "Aim slightly ahead of moving enemies.",
+      "Click directly on the enemy for maximum accuracy.",
+      "If your cart has multiple items, use the cart UI to select which one to throw."
+    ]
+  },
+  {
+    "id": "mechanic-pickup",
+    "name": "Pick Up",
+    "category": "Actions",
+    "hotkey": "E",
+    "description": "Picks up the nearest world object within reach and stores it in your cart.",
+    "details": "You must be standing close to the object. If the object's weight exceeds your solo lift capacity, you cannot pick it up alone — a party is required. The object is removed from the world and added to your cart.",
+    "tips": [
+      "Warrior class has the highest solo lift capacity.",
+      "The Wooden House cannot be lifted solo by anyone — it requires a coordinated party.",
+      "Picked-up objects count toward your cart's weight limit."
+    ]
+  },
+  {
+    "id": "mechanic-throw",
+    "name": "Throw",
+    "category": "Actions",
+    "hotkey": "T, then Left Click",
+    "description": "Throws the selected cart item at a target location. Damage scales with the object's weight and your Strength stat.",
+    "details": "Enter Throw Aim Mode with T, then left-click to launch. The object flies in a ballistic arc and deals damage on contact with an enemy. The item is consumed from your cart on throw.",
+    "tips": [
+      "Higher throw_tier objects deal more base damage.",
+      "Your class's throw damage multiplier affects total damage.",
+      "Thrown objects are gone after use — pick up more before engaging."
+    ]
+  },
+  {
+    "id": "mechanic-smash",
+    "name": "Smash",
+    "category": "Actions",
+    "hotkey": "R",
+    "description": "A melee attack. Lunges toward the nearest enemy and smashes the selected cart item directly into them, dealing bonus damage compared to a throw.",
+    "details": "You must be within melee range of an enemy. On activation the player dashes toward the target and deals smash damage on contact. Smash damage applies a multiplier on top of the base throw damage. The item is consumed from your cart.",
+    "tips": [
+      "Smash deals significantly more damage than throwing the same object.",
+      "You must be close enough — if no enemy is in range, nothing happens.",
+      "Use heavy objects for maximum smash damage."
+    ]
+  },
+  {
+    "id": "mechanic-grid-snap",
+    "name": "Grid Snapping",
+    "category": "Building",
+    "hotkey": null,
+    "description": "When placing objects in Build Mode, placement snaps to a fixed grid by default.",
+    "details": "The grid cell size matches the Stone Wall Section footprint, so walls placed side-by-side fit perfectly with no gaps. Hold ALT while clicking to bypass snapping and place freely at any position.",
+    "tips": [
+      "Use the grid for structural builds — walls, barriers, fortifications.",
+      "Use ALT+click for decorative placement where exact alignment matters less.",
+      "The grid lines are visible on the ground to help with alignment."
+    ]
+  },
+  {
+    "id": "mechanic-cart",
+    "name": "Cart",
+    "category": "Systems",
+    "hotkey": null,
+    "description": "Your cart stores the objects you pick up. It trails behind you as you move.",
+    "details": "Every cart has a maximum weight capacity. The cart UI on the right side of the screen shows all stored items. Select an item from the cart before throwing or smashing.",
+    "tips": [
+      "Fill your cart before engaging enemies.",
+      "Heavier carts slow you down — see Overload.",
+      "Cart tiers can be upgraded to increase capacity and unlock perk slots."
+    ]
+  },
+  {
+    "id": "mechanic-overload",
+    "name": "Overload",
+    "category": "Systems",
+    "hotkey": null,
+    "description": "If your cart's total weight exceeds its capacity, you are overloaded and move slower.",
+    "details": "An overloaded cart applies a movement speed penalty. Throw or smash items to reduce the load. Upgrading your cart tier increases the weight limit.",
+    "tips": [
+      "Prioritize throwing heavy items first if overloaded.",
+      "The Reinforced and Siege Cart tiers reduce the overload penalty."
+    ]
+  },
+  {
+    "id": "mechanic-cooperative-lift",
+    "name": "Cooperative Lift",
+    "category": "Systems",
+    "hotkey": null,
+    "description": "Objects too heavy for any single player can be lifted cooperatively by a party standing nearby.",
+    "details": "When multiple players attempt to pick up an object at the same time, their Strength stats are combined. If the combined value meets or exceeds the object's weight, the lift succeeds. The object goes into the initiating player's cart.",
+    "tips": [
+      "The Wooden House requires a full coordinated party.",
+      "Warrior class players contribute the most Strength to a cooperative lift.",
+      "Position matters — all lifting players must be in close range."
+    ]
+  }
+]
