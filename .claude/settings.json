@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/fix-encoding.js",
+            "statusMessage": "Checking and repairing encoding in .md files...",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node scripts/validate.js",
+            "statusMessage": "Validating area boundaries...",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node scripts/summarize.js",
+            "statusMessage": "Generating daily summary...",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

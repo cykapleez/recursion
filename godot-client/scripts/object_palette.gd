@@ -2,6 +2,8 @@ extends HBoxContainer
 
 func _ready() -> void:
 	for id: String in GameManager.OBJECT_DEFS:
+		if id == "obj-wooden-house":
+			continue
 		var def: Dictionary = GameManager.OBJECT_DEFS[id]
 		var btn := Button.new()
 		var category: String = def.get("item_category", "crafted")

@@ -3,6 +3,11 @@ class_name Player
 
 enum Mode { FREE, BUILD, THROW_AIM, POWER_THROW_CHARGING }
 
+const _CHAR_RUN_GLB  := "res://assets/models/characters/builder/Meshy_AI_THE_BUILDER_BLUE_biped_Animation_Running_withSkin.glb"
+const _CHAR_WALK_GLB := "res://assets/models/characters/builder/Meshy_AI_THE_BUILDER_BLUE_biped_Animation_Walking_withSkin.glb"
+const _CHAR_IDLE_GLB := "res://assets/models/characters/builder/Meshy_AI_THE_BUILDER_BLUE_biped_Character_output.glb"
+const _TURN_SPEED    := 10.0
+
 const BASE_SPEED        := 6.0
 const GRAVITY           := 9.8
 const MAX_THROW_DIST    := 8.0
@@ -11,6 +16,11 @@ const LUNGE_SPEED       := 22.0
 const LUNGE_TIME        := 0.18
 const POWER_THROW_TIME  := 0.5    # seconds to charge a heavy throw
 const MAX_LIVES         := 3
+
+# Zoom: index 0 = closest (3 steps in), index 3 = default, index 6 = farthest (3 steps out)
+const ZOOM_LEVELS:  Array[float] = [0.40, 0.58, 0.75, 1.0, 1.30, 1.60, 1.90]
+const ZOOM_DEFAULT: int          = 3
+const CAMERA_BASE:  Vector3      = Vector3(0.0, 12.0, 9.0)
 
 @export var pickup_range := 2.5
 
@@ -23,6 +33,13 @@ var hp:     int
 
 var _throw_arc:    Node3D
 var _hp_label:     Label3D
+var _zoom_index:   int      = ZOOM_DEFAULT
+var _camera:       Camera3D
+var _model:        Node3D
+var _anim_player:  AnimationPlayer
+var _anim_run:     String = ""
+var _anim_walk:    String = ""
+var _anim_idle:    String = ""
 var _smashing:     bool    = false
 var _lunge_dir:    Vector3 = Vector3.ZERO
 var _lunge_timer:  float   = 0.0
@@ -38,6 +55,7 @@ func _ready() -> void:
 	add_to_group("player")
 	hp = max_hp
 	call_deferred("_find_throw_arc")
+	call_deferred("_find_camera")
 	call_deferred("_store_spawn_pos")
 	_build_visuals()
 	_refresh_hp_bar()
@@ -46,42 +64,13 @@ func _store_spawn_pos() -> void:
 	_spawn_pos = global_position
 
 func _build_visuals() -> void:
-	# TODO: replace with proper character texture sheets when sourced
-	var blue := _mat(Color(0.2, 0.5, 1.0),  0.85, 0.0)   # cloth/soft armour
-	var skin := _mat(Color(0.95, 0.78, 0.62), 0.70, 0.0)  # skin
-	var dark := _mat(Color(0.1, 0.2, 0.5),   0.35, 0.15)  # eye gloss
-
-	# Legs / torso
-	var body_mesh          := CylinderMesh.new()
-	body_mesh.top_radius    = 0.22
-	body_mesh.bottom_radius = 0.28
-	body_mesh.height        = 1.2
-	var body               := MeshInstance3D.new()
-	body.mesh               = body_mesh
-	body.material_override  = blue
-	body.position.y         = 0.6
-	add_child(body)
-
-	# Head
-	var head_mesh  := SphereMesh.new()
-	head_mesh.radius = 0.28
-	head_mesh.height = 0.56
-	var head       := MeshInstance3D.new()
-	head.mesh       = head_mesh
-	head.material_override = skin
-	head.position.y = 1.58
-	add_child(head)
-
-	# Eyes (two small dark spheres)
-	for ex: float in [-0.12, 0.12]:
-		var em  := SphereMesh.new()
-		em.radius = 0.06
-		em.height = 0.12
-		var ei  := MeshInstance3D.new()
-		ei.mesh              = em
-		ei.material_override = dark
-		ei.position          = Vector3(ex, 1.62, -0.22)
-		add_child(ei)
+	var packed := load(_CHAR_RUN_GLB) as PackedScene
+	if packed == null:
+		push_warning("Player: failed to load character model")
+	else:
+		_model = packed.instantiate() as Node3D
+		add_child(_model)
+		_setup_animations()
 
 	var name_lbl           := Label3D.new()
 	name_lbl.text           = "Player"
@@ -107,13 +96,6 @@ func _build_visuals() -> void:
 	_charge_label.billboard     = BaseMaterial3D.BILLBOARD_ENABLED
 	_charge_label.no_depth_test = true
 	add_child(_charge_label)
-
-func _mat(color: Color, roughness: float = 0.8, metallic: float = 0.0) -> StandardMaterial3D:
-	var m := StandardMaterial3D.new()
-	m.albedo_color = color
-	m.roughness    = roughness
-	m.metallic     = metallic
-	return m
 
 func _refresh_hp_bar() -> void:
 	var pct    := float(hp) / float(max_hp)
@@ -153,8 +135,78 @@ func _current_throw_weight() -> float:
 	var def:  Dictionary = GameManager.OBJECT_DEFS.get(item.get("object_id", ""), {})
 	return float(def.get("weight", 0))
 
+func _setup_animations() -> void:
+	_anim_player = _model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if _anim_player == null:
+		return
+	# Discover the run animation name from the default library
+	if _anim_player.has_animation_library(""):
+		var names := _anim_player.get_animation_library("").get_animation_list()
+		if names.size() > 0:
+			_anim_run = names[0]
+	# Import walk animation from the walking GLB into a separate library
+	var walk_packed := load(_CHAR_WALK_GLB) as PackedScene
+	if walk_packed != null:
+		var walk_inst := walk_packed.instantiate()
+		var walk_ap   := walk_inst.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		if walk_ap != null and walk_ap.has_animation_library(""):
+			var walk_lib := walk_ap.get_animation_library("").duplicate(true) as AnimationLibrary
+			if not _anim_player.has_animation_library("walk"):
+				_anim_player.add_animation_library("walk", walk_lib)
+			var wnames := walk_lib.get_animation_list()
+			if wnames.size() > 0:
+				_anim_walk = "walk/" + wnames[0]
+		walk_inst.queue_free()
+	# Import standing/idle animation from the character output GLB
+	var idle_packed := load(_CHAR_IDLE_GLB) as PackedScene
+	if idle_packed != null:
+		var idle_inst := idle_packed.instantiate()
+		var idle_ap   := idle_inst.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		if idle_ap != null and idle_ap.has_animation_library(""):
+			var idle_lib := idle_ap.get_animation_library("").duplicate(true) as AnimationLibrary
+			if not _anim_player.has_animation_library("idle"):
+				_anim_player.add_animation_library("idle", idle_lib)
+			var inames := idle_lib.get_animation_list()
+			if inames.size() > 0:
+				_anim_idle = "idle/" + inames[0]
+		idle_inst.queue_free()
+	# Fallback: use the built-in RESET track if the output GLB had no animation
+	if _anim_idle == "" and _anim_player.has_animation("RESET"):
+		_anim_idle = "RESET"
+
+func _update_animation(delta: float) -> void:
+	var hspeed := Vector2(velocity.x, velocity.z).length()
+	# Rotate model to face movement direction
+	if _model != null and hspeed > 0.5:
+		var dir   := Vector3(velocity.x, 0.0, velocity.z).normalized()
+		var tgt_y := atan2(dir.x, dir.z)
+		_model.rotation.y = lerp_angle(_model.rotation.y, tgt_y, _TURN_SPEED * delta)
+	# Drive animation state
+	if _anim_player == null or _anim_run == "":
+		return
+	if hspeed > 0.5:
+		var target := _anim_walk if (hspeed < 3.0 and _anim_walk != "") else _anim_run
+		if _anim_player.current_animation != target:
+			_anim_player.play(target)
+	else:
+		var idle_target := _anim_idle if _anim_idle != "" else ""
+		if idle_target != "" and _anim_player.current_animation != idle_target:
+			_anim_player.play(idle_target)
+		elif idle_target == "" and _anim_player.is_playing():
+			_anim_player.stop()
+
 func _find_throw_arc() -> void:
 	_throw_arc = get_parent().get_node_or_null("ThrowArc3D")
+
+func _find_camera() -> void:
+	_camera = get_node_or_null("Camera3D") as Camera3D
+
+func _apply_zoom() -> void:
+	if _camera == null:
+		return
+	var target := CAMERA_BASE * ZOOM_LEVELS[_zoom_index]
+	var tween  := create_tween()
+	tween.tween_property(_camera, "position", target, 0.12).set_ease(Tween.EASE_OUT)
 
 func _physics_process(delta: float) -> void:
 	if _dead:
@@ -170,6 +222,7 @@ func _physics_process(delta: float) -> void:
 		_lunge_timer -= delta
 		if _lunge_timer <= 0.0:
 			_finish_smash()
+		_update_animation(delta)
 		return
 
 	if mode in [Mode.FREE, Mode.BUILD, Mode.THROW_AIM]:
@@ -182,6 +235,7 @@ func _physics_process(delta: float) -> void:
 		velocity.x = raw.x * spd
 		velocity.z = raw.y * spd
 		move_and_slide()
+	_update_animation(delta)
 
 func _process(delta: float) -> void:
 	if _dead:
@@ -205,6 +259,17 @@ func _process(delta: float) -> void:
 			_set_mode(Mode.FREE)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.pressed:
+			if mb.button_index == MOUSE_BUTTON_WHEEL_UP:
+				_zoom_index = max(0, _zoom_index - 1)
+				_apply_zoom()
+				return
+			if mb.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				_zoom_index = min(ZOOM_LEVELS.size() - 1, _zoom_index + 1)
+				_apply_zoom()
+				return
 	if _dead or mode == Mode.POWER_THROW_CHARGING:
 		return
 	if event.is_action_pressed("toggle_build"):

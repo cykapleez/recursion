@@ -21,11 +21,12 @@ const _RESUPPLY_POS: Array[Vector3] = [
 	Vector3( 2.5, 0.0, -5.0),
 ]
 
-var _wave_label:   Label
-var _lives_label:  Label
-var _status_label: Label
-var _overlay:      ColorRect
-var _game_ended:   bool = false
+var _wave_label:      Label
+var _lives_label:     Label
+var _status_label:    Label
+var _overlay:         ColorRect
+var _game_ended:      bool = false
+var _in_build_phase:  bool = true
 
 func _ready() -> void:
 	GameManager.mode_changed.connect(_on_mode_changed)
@@ -36,6 +37,8 @@ func _ready() -> void:
 	_populate_world()
 	_connect_wave_manager()
 	_wave_manager.start()
+	_wave_label.text = "BUILD PHASE  —  30s"
+	_flash_status("DEFEND  THE  HOUSE!", Color(1.0, 0.5, 0.1))
 
 # ── HUD ───────────────────────────────────────────────────────────────────────
 
@@ -109,6 +112,7 @@ func _connect_wave_manager() -> void:
 	_wave_manager.game_lost.connect(_on_game_lost)
 
 func _on_wave_started(num: int, total: int) -> void:
+	_in_build_phase = false
 	_wave_label.text = "WAVE  %d / %d" % [num, total]
 	_flash_status("WAVE  %d" % num, Color(1.0, 0.6, 0.1))
 	if num > 1:
@@ -118,9 +122,8 @@ func _on_wave_cleared(num: int) -> void:
 	_flash_status("WAVE  %d  CLEAR" % num, Color(0.3, 1.0, 0.4))
 
 func _on_countdown_tick(secs_left: float) -> void:
-	if not _status_label.visible:
-		return
-	# Let flash handle display; tick just keeps it alive if still showing
+	if _in_build_phase:
+		_wave_label.text = "BUILD PHASE  —  %ds" % int(ceil(secs_left))
 
 func _on_all_waves_cleared() -> void:
 	_game_ended = true

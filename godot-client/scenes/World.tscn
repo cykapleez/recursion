@@ -1,107 +1,89 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene format=3 uid="uid://b4eyvswpp72m5"]
 
-[ext_resource type="Script" path="res://scripts/world.gd" id="1"]
+[ext_resource type="Script" uid="uid://c4wltdgtbpl1q" path="res://scripts/world.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
-[ext_resource type="PackedScene" path="res://scenes/Enemy.tscn" id="3"]
-[ext_resource type="Script" path="res://scripts/cart_ui.gd" id="4"]
-[ext_resource type="Script" path="res://scripts/object_palette.gd" id="5"]
-[ext_resource type="Script" path="res://scripts/network.gd" id="6"]
-[ext_resource type="Script" path="res://scripts/throw_arc.gd" id="7"]
+[ext_resource type="Script" uid="uid://bumirqppegtlk" path="res://scripts/cart_ui.gd" id="4"]
+[ext_resource type="Script" uid="uid://bfp1xwjnit4r0" path="res://scripts/object_palette.gd" id="5"]
+[ext_resource type="Script" uid="uid://ue5fwfylgfmf" path="res://scripts/network.gd" id="6"]
+[ext_resource type="Script" uid="uid://cyxabx3twvtr7" path="res://scripts/throw_arc.gd" id="7"]
 [ext_resource type="Script" path="res://scripts/cart.gd" id="8"]
 [ext_resource type="Script" path="res://scripts/grid.gd" id="9"]
 [ext_resource type="Script" path="res://scripts/build_preview.gd" id="10"]
-[ext_resource type="Script" path="res://scripts/wave_manager.gd" id="11"]
+[ext_resource type="Script" uid="uid://cy7jbsxj1m8te" path="res://scripts/wave_manager.gd" id="11"]
 
 [sub_resource type="WorldBoundaryShape3D" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="3"]
+albedo_color = Color(0.22, 0.45, 0.18, 1)
+metallic_specular = 0.1
+roughness = 0.95
 
 [sub_resource type="PlaneMesh" id="2"]
 size = Vector2(80, 80)
 
-[sub_resource type="StandardMaterial3D" id="3"]
-albedo_color = Color(0.22, 0.45, 0.18, 1)
-roughness = 0.95
-metallic = 0.0
-metallic_specular = 0.1
-
-[node name="World" type="Node3D"]
+[node name="World" type="Node3D" unique_id=1980152327]
 script = ExtResource("1")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-rotation_degrees = Vector3(-50, -30, 0)
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1074173128]
+transform = Transform3D(0.8660254, 0.38302222, -0.32139382, 0, 0.64278764, 0.76604444, 0.5, -0.66341394, 0.5566704, 0, 0, 0)
 light_energy = 1.2
 shadow_enabled = true
 
-[node name="Ground" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1493963266]
 
-[node name="GroundCollision" type="CollisionShape3D" parent="Ground"]
+[node name="GroundCollision" type="CollisionShape3D" parent="Ground" unique_id=617171720]
 shape = SubResource("1")
 
-[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
-mesh = SubResource("2")
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground" unique_id=303588810]
 material_override = SubResource("3")
+mesh = SubResource("2")
 
-[node name="Player" parent="." instance=ExtResource("2")]
-position = Vector3(0, 0, 0)
+[node name="Player" parent="." unique_id=138779306 instance=ExtResource("2")]
 
-[node name="Enemy" parent="." instance=ExtResource("3")]
-position = Vector3(3.5, 0, -2.0)
-
-[node name="WaveManager" type="Node" parent="."]
+[node name="WaveManager" type="Node" parent="." unique_id=142375971]
 script = ExtResource("11")
 
-[node name="Grid" type="Node3D" parent="."]
+[node name="Grid" type="Node3D" parent="." unique_id=1326085718]
 script = ExtResource("9")
 
-[node name="Cart" type="Node3D" parent="."]
+[node name="Cart" type="Node3D" parent="." unique_id=1159849192]
 script = ExtResource("8")
 
-[node name="ThrowArc3D" type="Node3D" parent="."]
+[node name="ThrowArc3D" type="Node3D" parent="." unique_id=2115175965]
 script = ExtResource("7")
 
-[node name="BuildPreview" type="Node3D" parent="."]
+[node name="BuildPreview" type="Node3D" parent="." unique_id=256203082]
 script = ExtResource("10")
 
-[node name="Network" type="Node" parent="."]
+[node name="Network" type="Node" parent="." unique_id=159816435]
 script = ExtResource("6")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1700843484]
 layer = 10
 
-[node name="ModeLabel" type="Label" parent="CanvasLayer"]
-layout_mode = 1
-anchors_preset = 0
+[node name="ModeLabel" type="Label" parent="CanvasLayer" unique_id=1489988682]
 offset_left = 10.0
 offset_top = 8.0
 offset_right = 900.0
 offset_bottom = 32.0
-theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.9, 0.9, 0.7, 1)
+theme_override_font_sizes/font_size = 13
 
-[node name="CartUI" type="PanelContainer" parent="CanvasLayer"]
-layout_mode = 1
+[node name="CartUI" type="PanelContainer" parent="CanvasLayer" unique_id=25559562]
 anchors_preset = -1
 anchor_left = 1.0
-anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -230.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 0.0
 script = ExtResource("4")
 
-[node name="ItemList" type="VBoxContainer" parent="CanvasLayer/CartUI"]
+[node name="ItemList" type="VBoxContainer" parent="CanvasLayer/CartUI" unique_id=1620995275]
 layout_mode = 2
 
-[node name="ObjectPalette" type="HBoxContainer" parent="CanvasLayer"]
-layout_mode = 1
+[node name="ObjectPalette" type="HBoxContainer" parent="CanvasLayer" unique_id=953269366]
 anchors_preset = -1
-anchor_left = 0.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
 offset_top = -48.0
-offset_right = 0.0
-offset_bottom = 0.0
 script = ExtResource("5")

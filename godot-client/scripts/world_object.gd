@@ -2,6 +2,9 @@ extends StaticBody3D
 
 var object_id:  String
 var object_def: Dictionary
+var max_hp:     int
+var hp:         int
+var _hp_label:  Label3D
 
 const _MODELS: Dictionary = {
 	"obj-flower-pot":    "res://assets/models/pottedPlant.glb",
@@ -48,8 +51,12 @@ func setup(id: String, def: Dictionary) -> void:
 	object_id  = id
 	object_def = def
 	add_to_group("world_objects")
+	max_hp = 200 if id == "obj-wooden-house" else def.get("weight", 20) * 4
+	hp     = max_hp
 	_build_visuals()
 	_build_collision()
+	if id == "obj-wooden-house":
+		_build_hp_bar()
 
 func _build_visuals() -> void:
 	var weight: int    = object_def.get("weight", 20)
@@ -81,13 +88,49 @@ func _build_visuals() -> void:
 	add_child(name_lbl)
 
 	var hint           := Label3D.new()
-	hint.text           = "[E] pick up  %dkg" % weight
 	hint.position.y     = label_y - 0.3
 	hint.pixel_size     = 0.005
-	hint.modulate       = Color.CYAN
 	hint.billboard      = BaseMaterial3D.BILLBOARD_ENABLED
 	hint.no_depth_test  = true
+	if object_id == "obj-wooden-house":
+		hint.text    = "[ OBJECTIVE — DEFEND THIS HOUSE ]"
+		hint.modulate = Color(1.0, 0.5, 0.1)
+	else:
+		hint.text    = "[E] pick up  %dkg" % weight
+		hint.modulate = Color.CYAN
 	add_child(hint)
+
+func _build_hp_bar() -> void:
+	var label_y: float = float(_LABEL_Y.get(object_id, 1.5))
+	_hp_label              = Label3D.new()
+	_hp_label.position.y    = label_y - 0.6
+	_hp_label.pixel_size    = 0.005
+	_hp_label.modulate      = Color(0.9, 0.2, 0.2)
+	_hp_label.billboard     = BaseMaterial3D.BILLBOARD_ENABLED
+	_hp_label.no_depth_test = true
+	add_child(_hp_label)
+	_refresh_hp_bar()
+
+func _refresh_hp_bar() -> void:
+	var pct    := float(hp) / float(max_hp)
+	var filled := int(pct * 6.0)
+	var bar    := ""
+	for j in 6:
+		bar += "█" if j < filled else "░"
+	_hp_label.text = bar
+
+func take_damage(amount: int) -> void:
+	if object_id != "obj-wooden-house":
+		queue_free()
+		return
+	hp = max(0, hp - amount)
+	_refresh_hp_bar()
+	var tween := create_tween()
+	tween.tween_property(_hp_label, "modulate", Color(1.0, 1.0, 0.2), 0.05)
+	tween.tween_property(_hp_label, "modulate", Color(0.9, 0.2, 0.2), 0.3)
+	if hp <= 0:
+		GameManager.game_over.emit()
+		queue_free()
 
 func _build_cherry_tree() -> void:
 	var trunk_mat          := StandardMaterial3D.new()

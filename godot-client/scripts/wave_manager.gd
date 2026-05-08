@@ -3,13 +3,13 @@ extends Node
 const TOTAL_WAVES:    int   = 3
 const SPAWN_DIST:     float = 18.0
 const BETWEEN_DELAY:  float = 6.0
-const PRE_DELAY:      float = 3.0
+const PRE_DELAY:      float = 30.0
 
-# Per-wave config: enemy count + attack cooldown (seconds between attacks)
+# Per-wave config: hunters (target player) + house breakers (target wooden house)
 const WAVE_DEFS: Array[Dictionary] = [
-	{ "count": 2, "cooldown": 4.0 },
-	{ "count": 3, "cooldown": 3.2 },
-	{ "count": 4, "cooldown": 2.5 },
+	{ "count": 2, "cooldown": 4.0, "breakers": 0, "breaker_cooldown": 5.0 },
+	{ "count": 2, "cooldown": 3.2, "breakers": 1, "breaker_cooldown": 4.0 },
+	{ "count": 3, "cooldown": 2.5, "breakers": 2, "breaker_cooldown": 3.2 },
 ]
 
 signal wave_started(num: int, total: int)
@@ -50,12 +50,23 @@ func _spawn_wave() -> void:
 	var def: Dictionary = WAVE_DEFS[_wave - 1]
 	emit_signal("wave_started", _wave, TOTAL_WAVES)
 
-	var scene: PackedScene = load("res://scenes/Enemy.tscn")
+	var hunter_scene:  PackedScene = load("res://scenes/Enemy.tscn")
+	var breaker_scene: PackedScene = load("res://scenes/EnemyHouseBreaker.tscn")
+	var total: int = def["count"] + def.get("breakers", 0)
+
 	for i in def["count"]:
-		var angle := TAU * float(i) / float(def["count"]) + randf_range(-0.25, 0.25)
+		var angle := TAU * float(i) / float(total) + randf_range(-0.25, 0.25)
 		var pos   := Vector3(cos(angle) * SPAWN_DIST, 0.0, sin(angle) * SPAWN_DIST)
-		var e     := scene.instantiate()
+		var e     := hunter_scene.instantiate()
 		e.set("attack_cooldown_override", def["cooldown"])
+		get_tree().current_scene.add_child(e)
+		e.global_position = pos
+
+	for i in def.get("breakers", 0):
+		var angle := TAU * float(def["count"] + i) / float(total) + randf_range(-0.25, 0.25)
+		var pos   := Vector3(cos(angle) * SPAWN_DIST, 0.0, sin(angle) * SPAWN_DIST)
+		var e     := breaker_scene.instantiate()
+		e.set("attack_cooldown_override", def.get("breaker_cooldown", 4.0))
 		get_tree().current_scene.add_child(e)
 		e.global_position = pos
 

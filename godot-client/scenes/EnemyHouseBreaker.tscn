@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy.gd" id="1"]
+
+[node name="EnemyHouseBreaker" type="CharacterBody3D"]
+script = ExtResource("1")
+max_hp = 450
+enemy_name = "Verdant Colossus"
+target_type = "wooden_house"
+can_climb = false
+move_speed = 2.2
+attack_cooldown = 4.5
+aoe_radius = 5.5
+aoe_damage = 45
+house_attack_range = 8.0
+house_attack_damage = 25
+house_attack_cd = 1.5
+block_slam_cd = 1.5
