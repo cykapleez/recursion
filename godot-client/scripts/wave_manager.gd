@@ -3,7 +3,7 @@ extends Node
 const TOTAL_WAVES:    int   = 3
 const SPAWN_DIST:     float = 18.0
 const BETWEEN_DELAY:  float = 6.0
-const PRE_DELAY:      float = 30.0
+const PRE_DELAY:      float = 60.0
 
 # Per-wave config: hunters (target player) + house breakers (target wooden house)
 const WAVE_DEFS: Array[Dictionary] = [
